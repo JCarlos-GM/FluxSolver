@@ -28,6 +28,7 @@ export const Solver: React.FC = () => {
     clearMatrix,
     fillRandom,
     getSystem,
+    setSystem, // ✅ Agregar esta función del contexto
     validation,
     isValid,
     config,
@@ -56,7 +57,23 @@ export const Solver: React.FC = () => {
 
   const handleImageUpload = (file: File) => {
     console.log('Image uploaded:', file);
-    // TODO: Implementar OCR con Tesseract.js
+  };
+
+  // ✅ NUEVO: Handler para cuando se detecta un sistema en la imagen
+  const handleSystemDetected = (A: number[][], b: number[]) => {
+    // Cargar el sistema detectado en la matriz
+    setSystem(A, b);
+    
+    // Cambiar a modo manual para que el usuario vea el sistema
+    setInputMode('manual');
+    
+    // Hacer scroll al sistema después de un pequeño delay
+    setTimeout(() => {
+      document.getElementById('solver')?.scrollIntoView({ 
+        behavior: 'smooth',
+        block: 'start'
+      });
+    }, 500);
   };
 
   const handleSaveToHistory = () => {
@@ -122,7 +139,10 @@ export const Solver: React.FC = () => {
           )}
 
           {inputMode === 'image' && (
-            <ImageInput onImageUpload={handleImageUpload} />
+            <ImageInput 
+              onImageUpload={handleImageUpload}
+              onSystemDetected={handleSystemDetected} // ✅ Pasar el nuevo handler
+            />
           )}
         </div>
 

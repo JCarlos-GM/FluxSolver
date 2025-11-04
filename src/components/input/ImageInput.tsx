@@ -2,20 +2,26 @@ import React, { useState, useRef } from 'react';
 import { Card } from '../common/Card';
 import { Button } from '../common/Button';
 import { Icons } from '../../icons';
+import { useOCR } from '../../hooks/useOCR';
+import { parseEquationsFromText, detectSystemSize } from '../../utils/equationParser';
 
 interface ImageInputProps {
   onImageUpload: (file: File) => void;
-  isProcessing?: boolean;
+  onSystemDetected?: (A: number[][], b: number[]) => void;
 }
 
 export const ImageInput: React.FC<ImageInputProps> = ({
   onImageUpload,
-  isProcessing = false,
+  onSystemDetected,
 }) => {
   const [preview, setPreview] = useState<string | null>(null);
   const [dragActive, setDragActive] = useState(false);
-  const [uploadedFile, setUploadedFile] = useState<File | null>(null); // ✅ NUEVO
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+  const [extractedText, setExtractedText] = useState<string>('');
+  const [detectedSystem, setDetectedSystem] = useState<{ A: number[][], b: number[] } | null>(null);
+  
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { extractText, isProcessing, progress, error: ocrError } = useOCR();
 
   const handleFile = (file: File) => {
     if (!file.type.startsWith('image/')) {
@@ -23,15 +29,15 @@ export const ImageInput: React.FC<ImageInputProps> = ({
       return;
     }
 
-    // Crear preview
     const reader = new FileReader();
     reader.onloadend = () => {
       setPreview(reader.result as string);
     };
     reader.readAsDataURL(file);
 
-    // Guardar el archivo para procesarlo después
-    setUploadedFile(file); // ✅ NUEVO
+    setUploadedFile(file);
+    setExtractedText('');
+    setDetectedSystem(null);
   };
 
   const handleDrop = (e: React.DragEvent) => {
@@ -60,16 +66,37 @@ export const ImageInput: React.FC<ImageInputProps> = ({
 
   const handleClear = () => {
     setPreview(null);
-    setUploadedFile(null); // ✅ NUEVO
+    setUploadedFile(null);
+    setExtractedText('');
+    setDetectedSystem(null);
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
   };
 
-  // ✅ NUEVA FUNCIÓN: Procesar la imagen
-  const handleProcess = () => {
-    if (uploadedFile) {
+  const handleProcess = async () => {
+    if (!uploadedFile) return;
+
+    try {
       onImageUpload(uploadedFile);
+      
+      // Extraer texto con OCR
+      const text = await extractText(uploadedFile);
+      setExtractedText(text);
+
+      // Parsear ecuaciones
+      const size = detectSystemSize(text);
+      const result = parseEquationsFromText(text, size);
+
+      if (result) {
+        setDetectedSystem(result);
+        onSystemDetected?.(result.A, result.b);
+      } else {
+        alert('No se pudieron detectar ecuaciones válidas en la imagen');
+      }
+    } catch (err) {
+      console.error('Error al procesar imagen:', err);
+      alert('Error al procesar la imagen. Intenta con otra imagen más clara.');
     }
   };
 
@@ -86,7 +113,6 @@ export const ImageInput: React.FC<ImageInputProps> = ({
 
       <Card className="p-8">
         {!preview ? (
-          /* Zona de carga */
           <div
             onDrop={handleDrop}
             onDragOver={handleDragOver}
@@ -135,7 +161,6 @@ export const ImageInput: React.FC<ImageInputProps> = ({
             </div>
           </div>
         ) : (
-          /* Preview y procesamiento */
           <div className="space-y-6">
             {/* Imagen preview */}
             <div className="relative rounded-lg overflow-hidden border-2 border-gray-200">
@@ -153,10 +178,57 @@ export const ImageInput: React.FC<ImageInputProps> = ({
                       size={48}
                     />
                     <p className="font-semibold">Procesando imagen...</p>
+                    <p className="text-sm mt-2">{progress}%</p>
                   </div>
                 </div>
               )}
             </div>
+
+            {/* Texto extraído */}
+            {extractedText && (
+              <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+                <div className="flex items-center gap-2 mb-2">
+                  <Icons.FileText className="text-blue-500" size={20} />
+                  <h4 className="font-semibold text-blue-800">Texto Detectado:</h4>
+                </div>
+                <pre className="text-sm text-blue-700 whitespace-pre-wrap font-mono">
+                  {extractedText}
+                </pre>
+              </div>
+            )}
+
+            {/* Sistema detectado */}
+            {detectedSystem && (
+              <div className="p-4 bg-green-50 rounded-lg border border-green-200">
+                <div className="flex items-center gap-2 mb-3">
+                  <Icons.CheckCircle className="text-green-500" size={20} />
+                  <h4 className="font-semibold text-green-800">
+                    Sistema Detectado ({detectedSystem.A.length}×{detectedSystem.A.length})
+                  </h4>
+                </div>
+                <div className="space-y-2">
+                  {detectedSystem.A.map((row, i) => (
+                    <div key={i} className="font-mono text-sm text-green-700">
+                      {row.map((coef, j) => {
+                        const sign = coef >= 0 && j > 0 ? '+' : '';
+                        return `${sign}${coef}x${j + 1} `;
+                      }).join('')}
+                      = {detectedSystem.b[i]}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Error de OCR */}
+            {ocrError && (
+              <div className="p-4 bg-red-50 rounded-lg border border-red-200">
+                <div className="flex items-center gap-2">
+                  <Icons.XCircle className="text-red-500" size={20} />
+                  <p className="text-sm text-red-700">{ocrError}</p>
+                </div>
+              </div>
+            )}
 
             {/* Acciones */}
             <div className="flex justify-center gap-4">
@@ -171,11 +243,11 @@ export const ImageInput: React.FC<ImageInputProps> = ({
               <Button
                 variant="primary"
                 icon="Play"
-                onClick={handleProcess} // ✅ CORREGIDO
+                onClick={handleProcess}
                 isLoading={isProcessing}
                 disabled={isProcessing}
               >
-                {isProcessing ? 'Procesando...' : 'Procesar imagen'}
+                {isProcessing ? `Procesando... ${progress}%` : 'Procesar imagen'}
               </Button>
             </div>
           </div>
@@ -193,22 +265,11 @@ export const ImageInput: React.FC<ImageInputProps> = ({
                 <li>Evita sombras y reflejos</li>
                 <li>Letras y números deben ser legibles</li>
                 <li>Preferiblemente en formato impreso o escritura clara</li>
+                <li>Formato soportado: 2x + 3y = 5 o 2x1 + 3x2 = 5</li>
               </ul>
             </div>
           </div>
         </div>
-
-        {/* Estado de OCR */}
-        {isProcessing && (
-          <div className="mt-4 p-4 bg-yellow-50 rounded-lg">
-            <div className="flex items-center gap-2">
-              <Icons.Clock className="text-yellow-600 animate-pulse" size={20} />
-              <p className="text-sm text-yellow-700">
-                Analizando la imagen con OCR. Esto puede tomar unos segundos...
-              </p>
-            </div>
-          </div>
-        )}
       </Card>
     </div>
   );
