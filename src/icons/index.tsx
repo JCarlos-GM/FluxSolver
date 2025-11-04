@@ -1,0 +1,118 @@
+import {
+  Calculator,
+  FileText,
+  Mic,
+  Camera,
+  History,
+  Settings,
+  BarChart3,
+  BookOpen,
+  Sun,
+  Moon,
+  ChevronDown,
+  ChevronRight,
+  Check,
+  X,
+  Download,
+  Upload,
+  Play,
+  Pause,
+  RefreshCw,
+  Trash2,
+  Edit,
+  Copy,
+  Share2,
+  Info,
+  AlertCircle,
+  CheckCircle,
+  XCircle,
+  Menu,
+  Search,
+  Plus,
+  Minus,
+  Save,
+  Eye,
+  EyeOff,
+  ArrowRight,
+  ArrowLeft,
+  Grid3x3,
+  Layers,
+  Zap,
+  Target,
+  TrendingUp,
+  Clock,
+  User,
+  Mail,
+  Lock,
+  Globe,
+  Maximize2,
+  Minimize2,
+} from 'lucide-react';
+
+export const Icons = {
+  // Principales
+  Calculator,
+  FileText,
+  Mic,
+  Camera,
+  History,
+  Settings,
+  BarChart3,
+  BookOpen,
+  
+  // Tema
+  Sun,
+  Moon,
+  
+  // Navegación
+  ChevronDown,
+  ChevronRight,
+  Menu,
+  ArrowRight,
+  ArrowLeft,
+  
+  // Estados
+  Check,
+  X,
+  AlertCircle,
+  CheckCircle,
+  XCircle,
+  Info,
+  
+  // Acciones
+  Download,
+  Upload,
+  Play,
+  Pause,
+  RefreshCw,
+  Trash2,
+  Edit,
+  Copy,
+  Share2,
+  Search,
+  Plus,
+  Minus,
+  Save,
+  Eye,
+  EyeOff,
+  
+  // Específicos
+  Grid3x3,
+  Layers,
+  Zap,
+  Target,
+  TrendingUp,
+  Clock,
+  
+  // Usuario
+  User,
+  Mail,
+  Lock,
+  Globe,
+  
+  // Utilidad
+  Maximize2,
+  Minimize2,
+};
+
+export type IconName = keyof typeof Icons;
