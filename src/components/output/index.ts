@@ -3,3 +3,4 @@ export { IterationTable } from './IterationTable';
 export { StepByStep } from './StepByStep';
 export { ConvergenceChart } from './ConvergenceChart';
 export { Summary } from './Summary';
+export { GeoGebraGraph } from './GeoGebraGraph';

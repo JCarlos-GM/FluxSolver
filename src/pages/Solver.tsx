@@ -1,3 +1,5 @@
+// E:\FluxSolver\src\pages\Solver.tsx
+
 import React, { useState } from 'react';
 import { Section } from '../components/layout/Section';
 import { InputModeSelector } from '../components/input/InputModeSelector';
@@ -9,8 +11,9 @@ import { SolveButton } from '../components/solver/SolveButton';
 import { ResultDisplay } from '../components/output/ResultDisplay';
 import { IterationTable } from '../components/output/IterationTable';
 import { StepByStep } from '../components/output/StepByStep';
-import { ConvergenceChart } from '../components/output/ConvergenceChart';
+// import { ConvergenceChart } from '../components/output/ConvergenceChart'; // <-- Comentado para quitarlo
 import { Summary } from '../components/output/Summary';
+import { GeoGebraGraph } from '../components/output/GeoGebraGraph';
 import { useSolverContext } from '../context/SolverContext';
 import type { InputMode } from '../types';
 import { Icons } from '../icons';
@@ -28,7 +31,7 @@ export const Solver: React.FC = () => {
     clearMatrix,
     fillRandom,
     getSystem,
-    setSystem, // ✅ Agregar esta función del contexto
+    setSystem, 
     validation,
     isValid,
     config,
@@ -59,7 +62,7 @@ export const Solver: React.FC = () => {
     console.log('Image uploaded:', file);
   };
 
-  // ✅ NUEVO: Handler para cuando se detecta un sistema en la imagen
+  // Handler para cuando se detecta un sistema en la imagen
   const handleSystemDetected = (A: number[][], b: number[]) => {
     // Cargar el sistema detectado en la matriz
     setSystem(A, b);
@@ -141,7 +144,7 @@ export const Solver: React.FC = () => {
           {inputMode === 'image' && (
             <ImageInput 
               onImageUpload={handleImageUpload}
-              onSystemDetected={handleSystemDetected} // ✅ Pasar el nuevo handler
+              onSystemDetected={handleSystemDetected} 
             />
           )}
         </div>
@@ -203,8 +206,15 @@ export const Solver: React.FC = () => {
             {/* Main Result */}
             <ResultDisplay result={result} />
 
+            {/* 🎯 GRÁFICA DE GEOGEBRA INSERTADA AQUÍ */}
+            <GeoGebraGraph 
+              matrix={matrix}
+              vector={vector}
+              solution={result.solution} 
+            />
+
             {/* Convergence Chart */}
-            <ConvergenceChart iterations={result.iterations} />
+            {/* <ConvergenceChart iterations={result.iterations} /> */} {/* <-- LÍNEA ELIMINADA */}
 
             {/* Iteration Table */}
             <IterationTable iterations={result.iterations} />
