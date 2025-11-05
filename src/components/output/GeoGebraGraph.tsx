@@ -232,6 +232,7 @@ export const GeoGebraGraph: React.FC<GeoGebraGraphProps> = ({
       {/* Container de GeoGebra */}
       <div
         ref={containerRef}
+        id="geogebra-container" // <-- Cambio implementado aquí
         className="w-full h-[600px] border-2 border-gray-200 rounded-lg overflow-hidden bg-white"
       />
 

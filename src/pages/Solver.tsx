@@ -17,9 +17,11 @@ import { GeoGebraGraph } from '../components/output/GeoGebraGraph';
 import { useSolverContext } from '../context/SolverContext';
 import type { InputMode } from '../types';
 import { Icons } from '../icons';
+import { exportPDF } from '../utils/pdfExporter'; // <--- 1. IMPORTADO
 
 export const Solver: React.FC = () => {
   const [inputMode, setInputMode] = useState<InputMode>('manual');
+  const [isExporting, setIsExporting] = useState(false); // <--- 2. ESTADO AÑADIDO
 
   const {
     matrix,
@@ -31,7 +33,7 @@ export const Solver: React.FC = () => {
     clearMatrix,
     fillRandom,
     getSystem,
-    setSystem, 
+    setSystem,
     validation,
     isValid,
     config,
@@ -66,15 +68,15 @@ export const Solver: React.FC = () => {
   const handleSystemDetected = (A: number[][], b: number[]) => {
     // Cargar el sistema detectado en la matriz
     setSystem(A, b);
-    
+
     // Cambiar a modo manual para que el usuario vea el sistema
     setInputMode('manual');
-    
+
     // Hacer scroll al sistema después de un pequeño delay
     setTimeout(() => {
-      document.getElementById('solver')?.scrollIntoView({ 
+      document.getElementById('solver')?.scrollIntoView({
         behavior: 'smooth',
-        block: 'start'
+        block: 'start',
       });
     }, 500);
   };
@@ -100,9 +102,25 @@ export const Solver: React.FC = () => {
     }
   };
 
-  const handleExportPDF = () => {
-    console.log('Exporting to PDF...');
-    // TODO: Implementar exportación con jsPDF
+  // <--- 3. FUNCIÓN ACTUALIZADA ---
+  const handleExportPDF = async () => {
+    if (!result) return;
+
+    setIsExporting(true);
+    try {
+      // Llamar a la nueva función con todos los datos necesarios
+      await exportPDF({
+        result,
+        matrix,
+        vector,
+        config,
+      });
+    } catch (err) {
+      console.error('Error al exportar PDF:', err);
+      alert('Hubo un error al generar el PDF.');
+    } finally {
+      setIsExporting(false);
+    }
   };
 
   return (
@@ -142,9 +160,9 @@ export const Solver: React.FC = () => {
           )}
 
           {inputMode === 'image' && (
-            <ImageInput 
+            <ImageInput
               onImageUpload={handleImageUpload}
-              onSystemDetected={handleSystemDetected} 
+              onSystemDetected={handleSystemDetected}
             />
           )}
         </div>
@@ -180,7 +198,10 @@ export const Solver: React.FC = () => {
         {solverError && (
           <div className="mt-6 p-4 bg-red-50 border border-red-200 rounded-lg">
             <div className="flex items-start gap-2">
-              <Icons.XCircle className="text-red-500 flex-shrink-0 mt-0.5" size={20} />
+              <Icons.XCircle
+                className="text-red-500 flex-shrink-0 mt-0.5"
+                size={20}
+              />
               <div>
                 <p className="font-medium text-red-800 mb-1">Error al resolver</p>
                 <p className="text-sm text-red-600">{solverError}</p>
@@ -201,20 +222,22 @@ export const Solver: React.FC = () => {
               vector={vector}
               onExportPDF={handleExportPDF}
               onSaveToHistory={handleSaveToHistory}
+              isExporting={isExporting} 
             />
 
             {/* Main Result */}
             <ResultDisplay result={result} />
 
             {/* 🎯 GRÁFICA DE GEOGEBRA INSERTADA AQUÍ */}
-            <GeoGebraGraph 
+            <GeoGebraGraph
               matrix={matrix}
               vector={vector}
-              solution={result.solution} 
+              solution={result.solution}
             />
 
             {/* Convergence Chart */}
-            {/* <ConvergenceChart iterations={result.iterations} /> */} {/* <-- LÍNEA ELIMINADA */}
+            {/* <ConvergenceChart iterations={result.iterations} /> */}{' '}
+            {/* <-- LÍNEA ELIMINADA */}
 
             {/* Iteration Table */}
             <IterationTable iterations={result.iterations} />

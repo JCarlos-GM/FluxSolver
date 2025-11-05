@@ -11,6 +11,7 @@ interface SummaryProps {
   vector: Vector;
   onExportPDF?: () => void;
   onSaveToHistory?: () => void;
+  isExporting?: boolean; // <-- CAMBIO: Añadida prop
 }
 
 export const Summary: React.FC<SummaryProps> = ({
@@ -19,6 +20,7 @@ export const Summary: React.FC<SummaryProps> = ({
   vector,
   onExportPDF,
   onSaveToHistory,
+  isExporting = false, // <-- CAMBIO: Añadido valor por defecto
 }) => {
   const convergenceRate =
     result.iterations.length > 1
@@ -46,8 +48,16 @@ export const Summary: React.FC<SummaryProps> = ({
             </Button>
           )}
           {onExportPDF && (
-            <Button variant="primary" size="sm" icon="Download" onClick={onExportPDF}>
-              Exportar PDF
+            // <-- CAMBIOS EN ESTE BOTÓN -->
+            <Button
+              variant="primary"
+              size="sm"
+              icon="Download"
+              onClick={onExportPDF}
+              isLoading={isExporting}
+              disabled={isExporting}
+            >
+              {isExporting ? 'Exportando...' : 'Exportar PDF'}
             </Button>
           )}
         </div>
