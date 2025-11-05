@@ -12,19 +12,21 @@ export const SizeSelector: React.FC<SizeSelectorProps> = ({
   onSizeChange,
 }) => {
   return (
-    <div className="flex items-center gap-4 p-4 bg-white rounded-xl border-2 border-gray-200">
+    <div className="flex flex-col sm:flex-row sm:items-center gap-4 p-4 bg-white rounded-xl border-2 border-gray-200 w-full">
       <div className="flex items-center gap-2 text-text-primary">
         <Icons.Grid3x3 size={20} />
-        <span className="font-medium">Tamaño de la matriz:</span>
+        <span className="font-medium text-sm sm:text-base">
+          Tamaño de la matriz:
+        </span>
       </div>
 
-      <div className="flex gap-2">
+      <div className="flex flex-wrap justify-center sm:justify-start gap-2">
         {MATRIX_SIZES.map((matrixSize) => (
           <button
             key={matrixSize.value}
             onClick={() => onSizeChange(matrixSize.value)}
             className={`
-              px-4 py-2 rounded-lg font-semibold transition-all
+              px-4 py-2 rounded-lg font-semibold transition-all text-sm sm:text-base
               ${
                 size === matrixSize.value
                   ? 'bg-primary text-white shadow-md'
@@ -37,7 +39,7 @@ export const SizeSelector: React.FC<SizeSelectorProps> = ({
         ))}
       </div>
 
-      <div className="ml-auto flex items-center gap-2 text-sm text-text-secondary">
+      <div className="sm:ml-auto flex items-center justify-center sm:justify-end gap-2 text-xs sm:text-sm text-text-secondary text-center">
         <Icons.Info size={16} />
         <span>
           {size === 2 && 'Solución gráfica 2D disponible'}

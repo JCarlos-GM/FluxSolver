@@ -21,7 +21,7 @@ export const Navbar: React.FC = () => {
             <div className="bg-primary/10 p-2 rounded-lg group-hover:bg-primary/20 transition-colors">
               <Icons.Calculator className="text-primary" size={24} />
             </div>
-            <span className="text-xl font-bold text-text-primary">
+            <span className="text-lg sm:text-xl font-bold text-text-primary">
               FluxSolver
             </span>
           </div>
@@ -60,13 +60,13 @@ export const Navbar: React.FC = () => {
 
         {/* Mobile Menu */}
         {isMenuOpen && (
-          <div className="md:hidden py-4 border-t border-gray-200">
+          <div className="md:hidden py-4 border-t border-gray-200 animate-fadeIn">
             <div className="flex flex-col gap-4">
               {navLinks.map((link) => (
                 <a
                   key={link.label}
                   href={link.href}
-                  className="text-text-secondary hover:text-primary font-medium transition-colors py-2"
+                  className="text-text-secondary hover:text-primary font-medium transition-colors py-2 text-center"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   {link.label}

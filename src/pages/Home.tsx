@@ -11,27 +11,31 @@ export const Home: React.FC = () => {
         id="hero"
         background="gradient"
         padding="xl"
-        className="pt-32 md:pt-24"
+        className="pt-32 md:pt-24 px-4 sm:px-6"
       >
         <div className="text-center max-w-4xl mx-auto">
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-white rounded-full shadow-md mb-6">
+          {/* Header Tag */}
+          <div className="inline-flex flex-wrap items-center justify-center gap-2 px-4 py-2 bg-white rounded-full shadow-md mb-6">
             <Icons.Zap className="text-primary" size={20} />
-            <span className="font-semibold text-primary">
+            <span className="font-semibold text-primary text-sm sm:text-base">
               Nico y la China
             </span>
           </div>
 
-          <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-text-primary mb-6">
+          {/* Title */}
+          <h1 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-text-primary mb-6 leading-tight">
             Resuelve Sistemas de{' '}
             <span className="text-primary">Ecuaciones Lineales</span> al
             Instante
           </h1>
 
-          <p className="text-xl md:text-2xl text-text-secondary mb-12 leading-relaxed">
+          {/* Subtitle */}
+          <p className="text-base sm:text-lg md:text-2xl text-text-secondary mb-12 leading-relaxed px-2 sm:px-0">
             La calculadora más potente con métodos de Jacobi y Gauss-Seidel.
-            Entrada por voz, reconocimiento de imágenes, y visualización 3D.
+            Entrada por voz, reconocimiento de imágenes y visualización 3D.
           </p>
 
+          {/* Buttons */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Button
               variant="primary"
@@ -60,18 +64,30 @@ export const Home: React.FC = () => {
           </div>
 
           {/* Stats */}
-          <div className="grid grid-cols-3 gap-8 mt-16 pt-16 border-t border-gray-200">
-            <div>
-              <p className="text-4xl font-bold text-primary mb-2">99.9%</p>
-              <p className="text-text-secondary">Precisión</p>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 mt-16 pt-16 border-t border-gray-200">
+            <div className="text-center">
+              <p className="text-3xl sm:text-4xl font-bold text-primary mb-2">
+                99.9%
+              </p>
+              <p className="text-text-secondary text-sm sm:text-base">
+                Precisión
+              </p>
             </div>
-            <div>
-              <p className="text-4xl font-bold text-primary mb-2">&lt;1s</p>
-              <p className="text-text-secondary">Tiempo de respuesta</p>
+            <div className="text-center">
+              <p className="text-3xl sm:text-4xl font-bold text-primary mb-2">
+                &lt;1s
+              </p>
+              <p className="text-text-secondary text-sm sm:text-base">
+                Tiempo de respuesta
+              </p>
             </div>
-            <div>
-              <p className="text-4xl font-bold text-primary mb-2">3</p>
-              <p className="text-text-secondary">Modos de entrada</p>
+            <div className="text-center">
+              <p className="text-3xl sm:text-4xl font-bold text-primary mb-2">
+                3
+              </p>
+              <p className="text-text-secondary text-sm sm:text-base">
+                Modos de entrada
+              </p>
             </div>
           </div>
         </div>

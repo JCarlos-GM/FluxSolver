@@ -113,7 +113,7 @@ export const FAQ: React.FC = () => {
           <div className="flex items-center justify-center gap-2 text-primary">
             <Icons.Mail size={20} />
             <a href="mailto:support@fluxsolver.com" className="hover:underline">
-              Contáctanos en support@fluxsolver.com
+              Contáctanos en: jgoveamagana@gmail.com
             </a>
           </div>
         </div>
