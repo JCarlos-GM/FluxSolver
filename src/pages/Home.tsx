@@ -17,7 +17,7 @@ export const Home: React.FC = () => {
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-white rounded-full shadow-md mb-6">
             <Icons.Zap className="text-primary" size={20} />
             <span className="font-semibold text-primary">
-              Potenciado por IA
+              Nico y la China
             </span>
           </div>
 
