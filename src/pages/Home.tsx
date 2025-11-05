@@ -76,22 +76,6 @@ export const Home: React.FC = () => {
           </div>
         </div>
       </Section>
-
-      {/* Trusted by */}
-      <Section padding="md" background="white">
-        <div className="text-center">
-          <p className="text-text-secondary mb-8">Confiado por estudiantes de</p>
-          <div className="flex flex-wrap justify-center items-center gap-12 opacity-50">
-            <div className="text-2xl font-bold text-text-primary">MIT</div>
-            <div className="text-2xl font-bold text-text-primary">Stanford</div>
-            <div className="text-2xl font-bold text-text-primary">
-              UC Berkeley
-            </div>
-            <div className="text-2xl font-bold text-text-primary">Harvard</div>
-            <div className="text-2xl font-bold text-text-primary">Caltech</div>
-          </div>
-        </div>
-      </Section>
     </>
   );
 };

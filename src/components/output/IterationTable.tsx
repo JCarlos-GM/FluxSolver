@@ -6,8 +6,7 @@ import { Icons } from '../../icons';
 import type { Iteration } from '../../types';
 import { formatNumber, formatScientific } from '../../utils/formatters';
 
-// --- AÑADIDO ---
-// 1. Importar nuestra nueva función de exportación
+// 1. Importar nuestra función de exportación
 import { exportToExcel } from '../../utils/excelExporter';
 
 interface IterationTableProps {
@@ -22,56 +21,44 @@ export const IterationTable: React.FC<IterationTableProps> = ({
   const [expanded, setExpanded] = useState(showAll);
   const [selectedIteration, setSelectedIteration] = useState<number | null>(null);
 
-  // --- AÑADIDO ---
   // 2. Estado de carga para el botón
   const [isExporting, setIsExporting] = useState(false);
 
   const displayedIterations = expanded ? iterations : iterations.slice(0, 5);
   const hasMore = iterations.length > 5;
 
-  // --- AÑADIDO ---
-  // 3. Handler para el botón de exportar a Excel
-  const handleExcelExport = () => {
+  // 3. Handler para el botón de exportar a Excel (versión exceljs)
+  const handleExcelExport = async () => {
     setIsExporting(true);
 
-    // 3a. Transformar los datos para el Excel
-    // Queremos un array de objetos "plano"
     const dataToExport = iterations.map(it => {
-      // Creamos un objeto base
       const row: { [key: string]: any } = {
         'K': it.k,
       };
-
-      // 3b. Añadimos las variables X (x1, x2, ...) dinámicamente
       it.x.forEach((value, index) => {
-        row[`X${index + 1}`] = value; // Exportamos el NÚMERO crudo
+        row[`X${index + 1}`] = value;
       });
-
-      // 3c. Añadimos el resto de las columnas
       row['Error Absoluto'] = it.error;
-      row['Error Relativo'] = it.relativeError || null; // Usamos null si no existe
+      row['Error Relativo'] = it.relativeError || null;
       row['Residuo'] = it.residual || null;
-
       return row;
     });
 
-    // 3d. Llamar a nuestra función exportadora
     try {
-      exportToExcel(
+      // Usamos await porque exceljs es asíncrono
+      await exportToExcel(
         dataToExport,
         'FluxSolver_Iteraciones',
         'Iteraciones'
       );
     } catch (error) {
       console.error('Error al exportar a Excel:', error);
-      // Aquí podrías mostrar una notificación de error al usuario
     } finally {
       setIsExporting(false);
     }
   };
 
   return (
-    // Ya no necesitamos el ID para 'html2canvas'
     <Card className="p-6">
       <div className="flex items-center justify-between mb-6">
         <div>
@@ -84,14 +71,14 @@ export const IterationTable: React.FC<IterationTableProps> = ({
         </div>
 
         <div className="flex items-center gap-2">
-          {/* --- MODIFICADO --- */}
           {/* 4. Conectamos el botón al nuevo handler y estado de carga */}
           <Button
             variant="ghost"
             size="sm"
             icon={isExporting ? 'RefreshCw' : 'Download'}
-            onClick={handleExcelExport} // <-- Nueva función
+            onClick={handleExcelExport}
             disabled={isExporting}
+            className={isExporting ? 'animate-spin' : ''}
           >
             {isExporting ? 'Generando...' : 'Exportar Excel'}
           </Button>
@@ -101,27 +88,31 @@ export const IterationTable: React.FC<IterationTableProps> = ({
       {/* Tabla responsive */}
       <div className="overflow-x-auto">
         <table className="w-full">
-          {/* ... (sin cambios en el resto de la tabla) ... */}
           <thead>
             <tr className="border-b-2 border-gray-200">
-              <th className="px-4 py-3 text-left text-sm font-semibold text-text-primary">
+              {/* --- MODIFICADO --- */}
+              <th className="px-4 py-3 text-left text-base font-semibold text-text-primary">
                 k
               </th>
               {iterations[0]?.x.map((_, i) => (
                 <th
                   key={i}
-                  className="px-4 py-3 text-center text-sm font-semibold text-text-primary"
+                  // --- MODIFICADO ---
+                  className="px-4 py-3 text-center text-base font-semibold text-text-primary"
                 >
                   x<sub>{i + 1}</sub>
                 </th>
               ))}
-              <th className="px-4 py-3 text-center text-sm font-semibold text-text-primary">
+              {/* --- MODIFICADO --- */}
+              <th className="px-4 py-3 text-center text-base font-semibold text-text-primary">
                 Error Absoluto
               </th>
-              <th className="px-4 py-3 text-center text-sm font-semibold text-text-primary">
+              {/* --- MODIFICADO --- */}
+              <th className="px-4 py-3 text-center text-base font-semibold text-text-primary">
                 Error Relativo
               </th>
-              <th className="px-4 py-3 text-center text-sm font-semibold text-text-primary">
+              {/* --- MODIFICADO --- */}
+              <th className="px-4 py-3 text-center text-base font-semibold text-text-primary">
                 Residuo
               </th>
             </tr>
@@ -141,7 +132,8 @@ export const IterationTable: React.FC<IterationTableProps> = ({
                   ${idx === displayedIterations.length - 1 ? 'bg-green-50' : ''}
                 `}
               >
-                <td className="px-4 py-3 text-sm font-medium text-text-primary">
+                {/* --- MODIFICADO --- */}
+                <td className="px-4 py-3 text-base font-medium text-text-primary">
                   <div className="flex items-center gap-2">
                     {iteration.k}
                     {idx === displayedIterations.length - 1 && (
@@ -154,15 +146,18 @@ export const IterationTable: React.FC<IterationTableProps> = ({
                 {iteration.x.map((value, i) => (
                   <td
                     key={i}
-                    className="px-4 py-3 text-center text-sm text-text-primary font-mono"
+                    // --- MODIFICADO ---
+                    className="px-4 py-3 text-center text-base text-text-primary font-mono"
                   >
                     {formatNumber(value, 6)}
                   </td>
                 ))}
-                <td className="px-4 py-3 text-center text-sm font-mono">
+                {/* --- MODIFICADO --- */}
+                <td className="px-4 py-3 text-center text-base font-mono">
                   <span
+                    // --- MODIFICADO --- (el 'text-base' se hereda, pero lo ponemos en el span para asegurar)
                     className={`
-                      inline-flex items-center px-2 py-1 rounded
+                      inline-flex items-center px-2 py-1 rounded text-base
                       ${
                         iteration.error < 1e-6
                           ? 'bg-green-100 text-green-700'
@@ -175,12 +170,14 @@ export const IterationTable: React.FC<IterationTableProps> = ({
                     {formatScientific(iteration.error)}
                   </span>
                 </td>
-                <td className="px-4 py-3 text-center text-sm font-mono text-text-secondary">
+                {/* --- MODIFICADO --- */}
+                <td className="px-4 py-3 text-center text-base font-mono text-text-secondary">
                   {iteration.relativeError
                     ? formatScientific(iteration.relativeError)
                     : '-'}
                 </td>
-                <td className="px-4 py-3 text-center text-sm font-mono text-text-secondary">
+                {/* --- MODIFICADO --- */}
+                <td className="px-4 py-3 text-center text-base font-mono text-text-secondary">
                   {iteration.residual ? formatScientific(iteration.residual) : '-'}
                 </td>
               </tr>
@@ -189,7 +186,7 @@ export const IterationTable: React.FC<IterationTableProps> = ({
         </table>
       </div>
 
-      {/* ... (sin cambios en 'Mostrar todas' ni 'Detalles') ... */}
+      {/* Botón para expandir/colapsar */}
       {hasMore && !showAll && (
         <div className="mt-4 flex justify-center">
           <Button
@@ -205,6 +202,7 @@ export const IterationTable: React.FC<IterationTableProps> = ({
         </div>
       )}
 
+      {/* Detalles de iteración seleccionada */}
       {selectedIteration !== null && (
         <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
           <div className="flex items-center gap-2 mb-3">

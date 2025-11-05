@@ -128,10 +128,10 @@ export const Solver: React.FC = () => {
       {/* Solver Input Section */}
       <Section id="solver" padding="xl" className="pt-24">
         <div className="text-center mb-12">
-          <h2 className="text-4xl md:text-5xl font-bold text-text-primary mb-4">
+          <h2 className="text-5xl md:text-6xl font-bold text-text-primary mb-4">
             Calculadora de Sistemas Lineales
           </h2>
-          <p className="text-xl text-text-secondary">
+          <p className="text-2xl text-text-secondary">
             Elige tu método de entrada preferido
           </p>
         </div>
@@ -203,8 +203,8 @@ export const Solver: React.FC = () => {
                 size={20}
               />
               <div>
-                <p className="font-medium text-red-800 mb-1">Error al resolver</p>
-                <p className="text-sm text-red-600">{solverError}</p>
+                <p className="font-medium text-red-800 mb-1 text-lg">Error al resolver</p>
+                <p className="text-base text-red-600">{solverError}</p>
               </div>
             </div>
           </div>

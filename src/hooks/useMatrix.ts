@@ -1,5 +1,5 @@
-import { useState, useCallback } from 'react';
-import type { Matrix, Vector, LinearSystem, MatrixValidation } from '../types';
+import { useState, useCallback, useEffect } from 'react';
+import { Matrix, Vector, LinearSystem, MatrixValidation } from '../types';
 import { validateLinearSystem } from '../utils/validators';
 import { SOLVER_DEFAULTS } from '../utils/constants';
 
@@ -36,12 +36,21 @@ export const useMatrix = (initialSize: number = SOLVER_DEFAULTS.DEFAULT_MATRIX_S
     warnings: [],
   });
 
+  // ✅ EFECTO PARA REVALIDAR CUANDO CAMBIA LA MATRIZ O VECTOR
+  useEffect(() => {
+    console.log('🔍 Validando sistema...');
+    const newValidation = validateLinearSystem(matrix, vector);
+    console.log('📊 Resultado de validación:', newValidation);
+    setValidation(newValidation);
+  }, [matrix, vector]); // ✅ Revalida cuando cambian
+
   // Actualizar tamaño de la matriz
   const handleSetSize = useCallback((newSize: number) => {
     if (newSize < SOLVER_DEFAULTS.MIN_MATRIX_SIZE || newSize > SOLVER_DEFAULTS.MAX_MATRIX_SIZE) {
       return;
     }
     
+    console.log(`📏 Cambiando tamaño a ${newSize}×${newSize}`);
     setSize(newSize);
     setMatrix(createEmptyMatrix(newSize));
     setVector(createEmptyVector(newSize));
@@ -49,6 +58,7 @@ export const useMatrix = (initialSize: number = SOLVER_DEFAULTS.DEFAULT_MATRIX_S
 
   // Actualizar una celda de la matriz
   const updateCell = useCallback((row: number, col: number, value: number) => {
+    console.log(`✏️ Actualizando celda [${row}][${col}] = ${value}`);
     setMatrix(prev => {
       const newMatrix = prev.map(r => [...r]);
       newMatrix[row][col] = value;
@@ -58,6 +68,7 @@ export const useMatrix = (initialSize: number = SOLVER_DEFAULTS.DEFAULT_MATRIX_S
 
   // Actualizar una celda del vector
   const updateVectorCell = useCallback((index: number, value: number) => {
+    console.log(`✏️ Actualizando vector[${index}] = ${value}`);
     setVector(prev => {
       const newVector = [...prev];
       newVector[index] = value;
@@ -67,12 +78,14 @@ export const useMatrix = (initialSize: number = SOLVER_DEFAULTS.DEFAULT_MATRIX_S
 
   // Limpiar matriz y vector
   const clearMatrix = useCallback(() => {
+    console.log('🧹 Limpiando matriz');
     setMatrix(createEmptyMatrix(size));
     setVector(createEmptyVector(size));
   }, [size, createEmptyMatrix, createEmptyVector]);
 
   // Llenar con valores aleatorios
   const fillRandom = useCallback(() => {
+    console.log('🎲 Generando valores aleatorios');
     const randomMatrix = Array(size).fill(0).map((_, i) =>
       Array(size).fill(0).map((_, j) => {
         // Hacer la diagonal dominante para asegurar convergencia
@@ -94,10 +107,11 @@ export const useMatrix = (initialSize: number = SOLVER_DEFAULTS.DEFAULT_MATRIX_S
   // Establecer sistema completo
   const setSystem = useCallback((A: Matrix, b: Vector) => {
     if (A.length !== b.length) {
-      console.error('Las dimensiones de A y b no coinciden');
+      console.error('❌ Las dimensiones de A y b no coinciden');
       return;
     }
     
+    console.log(`📥 Cargando sistema ${A.length}×${A.length}`);
     setSize(A.length);
     setMatrix(A.map(row => [...row]));
     setVector([...b]);
@@ -111,12 +125,6 @@ export const useMatrix = (initialSize: number = SOLVER_DEFAULTS.DEFAULT_MATRIX_S
       size,
     };
   }, [matrix, vector, size]);
-
-  // Validar sistema cuando cambia
-  useState(() => {
-    const newValidation = validateLinearSystem(matrix, vector);
-    setValidation(newValidation);
-  });
 
   return {
     matrix,

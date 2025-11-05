@@ -1,10 +1,14 @@
 import React, { useState } from 'react';
 import { Card } from '../common/Card';
 import { Button } from '../common/Button';
-import { Badge } from '../common/Badge';  // ✅ AGREGADO
+import { Badge } from '../common/Badge';
 import { Icons } from '../../icons';
 import type { Matrix, Vector, Iteration, SolverMethod } from '../../types';
 import { formatNumber } from '../../utils/formatters';
+
+// 1. Importar el componente de KaTeX y su CSS
+import { BlockMath } from 'react-katex';
+import 'katex/dist/katex.min.css';
 
 interface StepByStepProps {
   matrix: Matrix;
@@ -22,7 +26,7 @@ export const StepByStep: React.FC<StepByStepProps> = ({
   const [currentStep, setCurrentStep] = useState(0);
   const [autoPlay, setAutoPlay] = useState(false);
 
-  const maxSteps = Math.min(iterations.length, 10); // Limitar a 10 pasos
+  const maxSteps = Math.min(iterations.length, 10);
 
   React.useEffect(() => {
     if (autoPlay && currentStep < maxSteps - 1) {
@@ -37,11 +41,14 @@ export const StepByStep: React.FC<StepByStepProps> = ({
 
   const currentIteration = iterations[currentStep];
 
+  // --- MODIFICADO ---
+  // 2. Ahora, esta función genera *todo* como strings de LaTeX
   const generateStepExplanation = (k: number): string[] => {
+    // \text{} se usa para poner texto normal dentro de un bloque de LaTeX
     if (k === 0) {
       return [
-        'Comenzamos con el vector inicial x⁽⁰⁾ = [0, 0, ...]',
-        'Aplicaremos las fórmulas del método iterativo a cada componente',
+        '\\text{Comenzamos con el vector inicial.}',
+        'x^{(0)} = [0, 0, ...]',
       ];
     }
 
@@ -49,41 +56,47 @@ export const StepByStep: React.FC<StepByStepProps> = ({
     const explanations: string[] = [];
 
     if (method === 'jacobi') {
-      explanations.push(`Iteración ${k}: Método de Jacobi`);
+      // Título y descripción ahora son LaTeX
+      explanations.push(`\\text{Iteración ${k}: Método de Jacobi}`);
       explanations.push(
-        'En Jacobi, todas las variables se actualizan simultáneamente usando los valores de la iteración anterior.'
+        `\\text{Usamos los valores de la iteración anterior, } x^{(k-1)}, \\text{ para calcular todos los nuevos valores de } x^{(k)}.`
       );
 
       for (let i = 0; i < n; i++) {
-        let formula = `x${i + 1}⁽${k}⁾ = (${formatNumber(vector[i], 2)}`;
-
+        let numerator = `${formatNumber(vector[i], 2)}`;
         for (let j = 0; j < n; j++) {
           if (i !== j && matrix[i][j] !== 0) {
-            formula += ` - ${formatNumber(matrix[i][j], 2)} × x${j + 1}⁽${k - 1}⁾`;
+            const coeff = matrix[i][j];
+            const sign = coeff < 0 ? '+' : '-';
+            const val = Math.abs(coeff);
+            numerator += ` ${sign} ${formatNumber(val, 2)} \\cdot x_{${j + 1}}^{( ${k - 1} )}`;
           }
         }
-
-        formula += `) / ${formatNumber(matrix[i][i], 2)}`;
-        explanations.push(formula);
+        const denominator = `${formatNumber(matrix[i][i], 2)}`;
+        const latexFormula = `x_{${i + 1}}^{(${k})} = \\frac{${numerator}}{${denominator}}`;
+        explanations.push(latexFormula);
       }
     } else {
-      explanations.push(`Iteración ${k}: Método de Gauss-Seidel`);
+      // Título y descripción ahora son LaTeX
+      explanations.push(`\\text{Iteración ${k}: Método de Gauss-Seidel}`);
       explanations.push(
-        'En Gauss-Seidel, cada variable se actualiza usando los valores más recientes disponibles.'
+        `\\text{Usamos los valores más recientes. Para } x_{i}^{(k)}, \\text{usamos los } x_{j<i}^{(k)} \\text{ que ya calculamos y los } x_{j>i}^{(k-1)} \\text{ restantes.}`
       );
 
       for (let i = 0; i < n; i++) {
-        let formula = `x${i + 1}⁽${k}⁾ = (${formatNumber(vector[i], 2)}`;
-
+        let numerator = `${formatNumber(vector[i], 2)}`;
         for (let j = 0; j < n; j++) {
           if (i !== j && matrix[i][j] !== 0) {
+            const coeff = matrix[i][j];
+            const sign = coeff < 0 ? '+' : '-';
+            const val = Math.abs(coeff);
             const superscript = j < i ? k : k - 1;
-            formula += ` - ${formatNumber(matrix[i][j], 2)} × x${j + 1}⁽${superscript}⁾`;
+            numerator += ` ${sign} ${formatNumber(val, 2)} \\cdot x_{${j + 1}}^{( ${superscript} )}`;
           }
         }
-
-        formula += `) / ${formatNumber(matrix[i][i], 2)}`;
-        explanations.push(formula);
+        const denominator = `${formatNumber(matrix[i][i], 2)}`;
+        const latexFormula = `x_{${i + 1}}^{(${k})} = \\frac{${numerator}}{${denominator}}`;
+        explanations.push(latexFormula);
       }
     }
 
@@ -94,6 +107,7 @@ export const StepByStep: React.FC<StepByStepProps> = ({
 
   return (
     <Card className="p-6">
+      {/* ... (Controles no cambian) ... */}
       <div className="flex items-center justify-between mb-6">
         <h3 className="text-xl font-semibold text-text-primary">
           Procedimiento Paso a Paso
@@ -102,8 +116,6 @@ export const StepByStep: React.FC<StepByStepProps> = ({
           Paso {currentStep + 1} de {maxSteps}
         </Badge>
       </div>
-
-      {/* Controles de navegación */}
       <div className="flex items-center justify-between mb-6 p-4 bg-gray-50 rounded-lg">
         <Button
           variant="ghost"
@@ -114,7 +126,6 @@ export const StepByStep: React.FC<StepByStepProps> = ({
         >
           Anterior
         </Button>
-
         <div className="flex items-center gap-2">
           <Button
             variant="ghost"
@@ -124,7 +135,6 @@ export const StepByStep: React.FC<StepByStepProps> = ({
           >
             {autoPlay ? 'Pausar' : 'Auto Play'}
           </Button>
-
           <div className="w-48 mx-4">
             <input
               type="range"
@@ -136,7 +146,6 @@ export const StepByStep: React.FC<StepByStepProps> = ({
             />
           </div>
         </div>
-
         <Button
           variant="ghost"
           size="sm"
@@ -148,7 +157,8 @@ export const StepByStep: React.FC<StepByStepProps> = ({
         </Button>
       </div>
 
-      {/* Explicación del paso */}
+      {/* --- MODIFICADO --- */}
+      {/* 3. Renderizamos *todo* con BlockMath y ajustamos tamaños */}
       <div className="space-y-6">
         <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
           <div className="flex items-start gap-2">
@@ -157,28 +167,36 @@ export const StepByStep: React.FC<StepByStepProps> = ({
               <h4 className="font-semibold text-blue-800 mb-3">
                 Explicación del Paso {currentStep + 1}
               </h4>
-              <div className="space-y-2">
-                {stepExplanations.map((explanation, i) => (
-                  <p
-                    key={i}
-                    className={`text-sm ${
-                      i === 0 ? 'font-medium text-blue-900' : 'text-blue-700 font-mono'
-                    }`}
-                  >
-                    {explanation}
-                  </p>
-                ))}
+              <div className="space-y-4">
+                {stepExplanations.map((explanation, i) => {
+                  return (
+                    <div
+                      key={i}
+                      // i === 0: Título (ej. "Iteración 1...")
+                      // i === 1: Descripción (ej. "Usamos los valores...")
+                      // i > 1: Fórmulas
+                      // Aplicamos el 'text-xl' a las fórmulas, y tamaños más pequeños al resto.
+                      className={`
+                        ${i > 1 ? 'text-xl' : (i === 0 ? 'text-lg font-medium' : 'text-base')}
+                        text-blue-900 overflow-x-auto
+                      `}
+                    >
+                      <BlockMath math={explanation} />
+                    </div>
+                  );
+                })}
               </div>
             </div>
           </div>
         </div>
 
-        {/* Vector en este paso */}
+        {/* ... (Tarjeta de Vector no cambia) ... */}
         {currentIteration && (
           <div className="p-4 bg-green-50 rounded-lg border border-green-200">
             <h4 className="font-semibold text-green-800 mb-3 flex items-center gap-2">
               <Icons.CheckCircle className="text-green-500" size={20} />
-              Vector x⁽{currentStep}⁾
+              {/* Usamos KaTeX aquí también para el superíndice */}
+              <BlockMath math={`\\text{Vector } x^{(${currentStep})}`} />
             </h4>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
               {currentIteration.x.map((value, i) => (
@@ -192,7 +210,6 @@ export const StepByStep: React.FC<StepByStepProps> = ({
                 </div>
               ))}
             </div>
-
             <div className="mt-4 grid grid-cols-3 gap-4">
               <div className="text-center">
                 <p className="text-xs text-green-600 mb-1">Error</p>
@@ -221,7 +238,7 @@ export const StepByStep: React.FC<StepByStepProps> = ({
         )}
       </div>
 
-      {/* Indicador de progreso */}
+      {/* ... (Progreso no cambia) ... */}
       <div className="mt-6">
         <div className="flex justify-between text-xs text-text-secondary mb-2">
           <span>Progreso</span>

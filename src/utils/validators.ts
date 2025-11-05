@@ -53,10 +53,9 @@ export const calculateDeterminant = (matrix: Matrix): number => {
  * Verifica si la matriz es singular (determinante = 0)
  */
 export const isSingular = (matrix: Matrix): boolean => {
-  // const det = calculateDeterminant(matrix);
-  // return Math.abs(det) < 1e-10; 
+  const det = calculateDeterminant(matrix);
+  return Math.abs(det) < 1e-10; 
 
-  // 🚨 Desactivar temporalmente la comprobación de singularidad:
   return false; 
 };
 

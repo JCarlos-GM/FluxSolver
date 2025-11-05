@@ -1,8 +1,11 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Card } from '../common/Card';
-import { Input } from '../common/Input';
 import { Button } from '../common/Button';
-import { Icons } from '../../icons';
+import { Icons } from '../../icons'; 
+
+// Clases para ocultar los spinners de los inputs tipo 'number'
+const hideSpinners =
+  '[appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none';
 
 interface MatrixInputProps {
   matrix: number[][];
@@ -23,13 +26,12 @@ export const MatrixInput: React.FC<MatrixInputProps> = ({
   onClear,
   onFillRandom,
 }) => {
-  const [focusedCell, setFocusedCell] = useState<{ row: number; col: number } | null>(null);
-
   const handleCellInput = (row: number, col: number, value: string) => {
-    // Permitir input temporal (incluso vacío o con punto decimal)
     const numValue = value === '' ? 0 : parseFloat(value);
     if (!isNaN(numValue)) {
       onCellChange(row, col, numValue);
+    } else if (value === '') {
+      onCellChange(row, col, 0);
     }
   };
 
@@ -37,14 +39,27 @@ export const MatrixInput: React.FC<MatrixInputProps> = ({
     const numValue = value === '' ? 0 : parseFloat(value);
     if (!isNaN(numValue)) {
       onVectorChange(index, numValue);
+    } else if (value === '') {
+      onVectorChange(index, 0);
     }
   };
 
+  // Estilo base para todas las celdas
+  // CLAVES: text-2xl y sin font-bold/font-semibold
+  const baseCellStyle = `
+    w-24 h-14 text-2xl text-center rounded-lg  
+    border border-gray-300 bg-gray-100 
+    input-focus 
+    ${hideSpinners}
+  `;
+
   return (
     <Card className="p-6">
-      <div className="flex items-center justify-between mb-6">
+      
+      {/* Controles y Título */}
+      <div className="flex items-center justify-between mb-4">
         <h3 className="text-xl font-semibold text-text-primary">
-          Sistema de Ecuaciones {size}×{size}
+          Sistema de Ecuaciones
         </h3>
         <div className="flex gap-2">
           {onFillRandom && (
@@ -70,35 +85,29 @@ export const MatrixInput: React.FC<MatrixInputProps> = ({
         </div>
       </div>
 
-      <div className="overflow-x-auto">
-        <div className="inline-flex gap-4 items-center min-w-full">
-          {/* Matriz A */}
-          <div className="flex flex-col gap-2">
-            <div className="text-sm font-medium text-text-secondary mb-2 text-center">
-              Matriz de Coeficientes (A)
-            </div>
+      <hr className="my-4 border-gray-200" />
+
+      {/* Cuadrícula de Inputs */}
+      <div className="flex justify-center items-center gap-6 p-4">
+        
+        {/* Matriz A */}
+        <div className="p-3">
+          <div className="flex flex-col gap-3">
             {matrix.map((row, i) => (
-              <div key={i} className="flex gap-2">
+              <div key={i} className="flex gap-3">
                 {row.map((cell, j) => (
                   <div key={j} className="relative">
                     <input
                       type="number"
                       step="any"
-                      value={cell || ''}
+                      value={cell === 0 ? '' : cell}
                       onChange={(e) => handleCellInput(i, j, e.target.value)}
-                      onFocus={() => setFocusedCell({ row: i, col: j })}
-                      onBlur={() => setFocusedCell(null)}
                       placeholder="0"
-                      className={`
-                        w-20 h-12 text-center rounded-lg border-2 transition-all
-                        focus:outline-none focus:ring-2 focus:ring-primary/20
-                        ${
-                          focusedCell?.row === i && focusedCell?.col === j
-                            ? 'border-primary bg-primary/5'
-                            : 'border-gray-200 bg-white'
-                        }
-                        ${i === j ? 'font-semibold' : ''}
-                      `}
+                      aria-label={`Coeficiente A fila ${i + 1} columna ${j + 1}`}
+                      // Eliminada la clase font-semibold aquí
+                      className={`${baseCellStyle} ${
+                        i === j ? 'text-primary' : ''
+                      }`}
                     />
                     {i === j && (
                       <div className="absolute -bottom-1 -right-1 bg-primary text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
@@ -110,68 +119,27 @@ export const MatrixInput: React.FC<MatrixInputProps> = ({
               </div>
             ))}
           </div>
-
-          {/* Variables */}
-          <div className="flex flex-col gap-2 justify-center">
-            <div className="text-sm font-medium text-text-secondary mb-2 text-center opacity-0">
-              x
-            </div>
-            {Array.from({ length: size }).map((_, i) => (
-              <div
-                key={i}
-                className="h-12 flex items-center justify-center text-lg font-semibold text-text-primary"
-              >
-                x<sub>{i + 1}</sub>
-              </div>
-            ))}
-          </div>
-
-          {/* Símbolo igual */}
-          <div className="flex flex-col gap-2 justify-center">
-            <div className="text-sm font-medium text-text-secondary mb-2 text-center opacity-0">
-              =
-            </div>
-            {Array.from({ length: size }).map((_, i) => (
-              <div
-                key={i}
-                className="h-12 flex items-center justify-center text-2xl text-text-secondary"
-              >
-                =
-              </div>
-            ))}
-          </div>
-
-          {/* Vector b */}
-          <div className="flex flex-col gap-2">
-            <div className="text-sm font-medium text-text-secondary mb-2 text-center">
-              Vector (b)
-            </div>
-            {vector.map((value, i) => (
-              <div key={i}>
-                <input
-                  type="number"
-                  step="any"
-                  value={value || ''}
-                  onChange={(e) => handleVectorInput(i, e.target.value)}
-                  placeholder="0"
-                  className="w-20 h-12 text-center rounded-lg border-2 border-gray-200 bg-white focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
-                />
-              </div>
-            ))}
-          </div>
         </div>
-      </div>
 
-      {/* Ayuda visual */}
-      <div className="mt-6 flex items-start gap-2 p-4 bg-blue-50 rounded-lg">
-        <Icons.Info className="text-blue-500 flex-shrink-0 mt-0.5" size={20} />
-        <div className="text-sm text-blue-700">
-          <p className="font-medium mb-1">Consejos para mejor convergencia:</p>
-          <ul className="space-y-1 text-xs">
-            <li>• Los valores de la diagonal (marcados con 'd') deben ser mayores que la suma de los otros valores de la fila</li>
-            <li>• Evita valores muy grandes o muy pequeños</li>
-            <li>• Usa el botón "Aleatorio" para generar un sistema con convergencia garantizada</li>
-          </ul>
+        {/* Separador */}
+        <div className="w-1 h-24 bg-primary rounded-full"></div>
+
+        {/* Vector b */}
+        <div className="p-3">
+          <div className="flex flex-col gap-3">
+            {vector.map((value, i) => (
+              <input
+                key={i}
+                type="number"
+                step="any"
+                value={value === 0 ? '' : value}
+                onChange={(e) => handleVectorInput(i, e.target.value)}
+                placeholder="0"
+                aria-label={`Valor b fila ${i + 1}`}
+                className={baseCellStyle}
+              />
+            ))}
+          </div>
         </div>
       </div>
     </Card>
