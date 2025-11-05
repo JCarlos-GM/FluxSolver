@@ -28,7 +28,7 @@ export const InputModeSelector: React.FC<InputModeSelectorProps> = ({
             key={mode.value}
             onClick={() => onModeChange(mode.value)}
             className={`
-              flex items-center justify-center gap-2 px-4 sm:px-6 py-2 sm:py-3 rounded-full font-semibold transition-all text-sm sm:text-base
+              flex items-center justify-center gap-2 px-3 sm:px-4 py-2 rounded-full font-semibold transition-all text-sm sm:text-base
               ${
                 isActive
                   ? 'bg-primary text-white shadow-md'
@@ -36,7 +36,7 @@ export const InputModeSelector: React.FC<InputModeSelectorProps> = ({
               }
             `}
           >
-            <Icon size={18} className="sm:size-20" />
+            <Icon size={16} className="sm:w-5 sm:h-5" />
             <span>{mode.label}</span>
           </button>
         );
