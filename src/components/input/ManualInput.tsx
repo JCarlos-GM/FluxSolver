@@ -2,6 +2,8 @@ import React from 'react';
 import { MatrixInput } from '../solver/MatrixInput';
 import { SizeSelector } from '../solver/SizeSelector';
 
+type InputViewMode = 'matricial' | 'coeficientes' | 'ecuacion';
+
 interface ManualInputProps {
   matrix: number[][];
   vector: number[];
@@ -11,6 +13,7 @@ interface ManualInputProps {
   onSizeChange: (size: number) => void;
   onClear: () => void;
   onFillRandom: () => void;
+  viewMode?: InputViewMode;
 }
 
 export const ManualInput: React.FC<ManualInputProps> = ({
@@ -22,6 +25,7 @@ export const ManualInput: React.FC<ManualInputProps> = ({
   onSizeChange,
   onClear,
   onFillRandom,
+  viewMode = 'matricial',
 }) => {
   return (
     <div className="space-y-6">
@@ -44,6 +48,7 @@ export const ManualInput: React.FC<ManualInputProps> = ({
         onVectorChange={onVectorChange}
         onClear={onClear}
         onFillRandom={onFillRandom}
+        viewMode={viewMode}
       />
     </div>
   );

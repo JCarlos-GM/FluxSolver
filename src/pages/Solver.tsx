@@ -21,7 +21,8 @@ import { exportPDF } from '../utils/pdfExporter'; // <--- 1. IMPORTADO
 
 export const Solver: React.FC = () => {
   const [inputMode, setInputMode] = useState<InputMode>('manual');
-  const [isExporting, setIsExporting] = useState(false); // <--- 2. ESTADO AÑADIDO
+  const [isExporting, setIsExporting] = useState(false);
+  const [viewMode, setViewMode] = useState<'matricial' | 'coeficientes' | 'ecuacion'>('matricial');
 
   const {
     matrix,
@@ -149,6 +150,7 @@ export const Solver: React.FC = () => {
               onSizeChange={setSize}
               onClear={clearMatrix}
               onFillRandom={fillRandom}
+              viewMode={viewMode}
             />
           )}
 
@@ -175,11 +177,11 @@ export const Solver: React.FC = () => {
                 method={config.method}
                 tolerance={config.tolerance}
                 maxIterations={config.maxIterations}
+                viewMode={viewMode}  // ✅ AGREGAR
                 onMethodChange={(method) => updateConfig({ method })}
                 onToleranceChange={(tolerance) => updateConfig({ tolerance })}
-                onMaxIterationsChange={(maxIterations) =>
-                  updateConfig({ maxIterations })
-                }
+                onMaxIterationsChange={(maxIterations) => updateConfig({ maxIterations })}
+                onViewModeChange={setViewMode}  // ✅ AGREGAR
               />
             </div>
             <div>
@@ -222,7 +224,7 @@ export const Solver: React.FC = () => {
               vector={vector}
               onExportPDF={handleExportPDF}
               onSaveToHistory={handleSaveToHistory}
-              isExporting={isExporting} 
+              isExporting={isExporting}
             />
 
             {/* Main Result */}

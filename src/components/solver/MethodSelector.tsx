@@ -13,20 +13,24 @@ interface MethodSelectorProps {
   method: SolverMethod;
   tolerance: number;
   maxIterations: number;
+  viewMode?: InputViewMode; // ✅ Prop del padre
   onMethodChange: (method: SolverMethod) => void;
   onToleranceChange: (tolerance: number) => void;
   onMaxIterationsChange: (maxIterations: number) => void;
+  onViewModeChange?: (mode: InputViewMode) => void; // ✅ Callback para cambiar vista
 }
 
 export const MethodSelector: React.FC<MethodSelectorProps> = ({
   method,
   tolerance,
   maxIterations,
+  viewMode = 'matricial', // ✅ Valor por defecto
   onMethodChange,
   onToleranceChange,
   onMaxIterationsChange,
+  onViewModeChange,
 }) => {
-  const [viewMode, setViewMode] = useState<InputViewMode>('matricial');
+  // ❌ ELIMINADO: const [viewMode, setViewMode] = useState<InputViewMode>('matricial');
   const [showModal, setShowModal] = useState(false);
 
   const methodInfo = {
@@ -59,7 +63,7 @@ export const MethodSelector: React.FC<MethodSelectorProps> = ({
         {/* Selector de vista */}
         <select
           value={viewMode}
-          onChange={(e) => setViewMode(e.target.value as InputViewMode)}
+          onChange={(e) => onViewModeChange?.(e.target.value as InputViewMode)}
           className="flex-1 px-4 py-3 text-base font-medium border-2 border-gray-300 rounded-lg bg-white hover:border-primary focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all cursor-pointer"
         >
           {viewModeOptions.map((option) => (
